@@ -1,0 +1,120 @@
+---
+title: "Q5"
+author: "Hyunje Park"
+date: '2022-12-05'
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(rlang)
+library(dplyr)
+library(ggplot2)
+```
+
+```{r}
+# setup dataframe
+mrc <- read.csv("MRC - Raw Data.csv")
+glimpse(mrc)
+
+
+mrc %>% arrange(Player.Rank)
+```
+
+
+```{r}
+rank_score <- ggplot(mrc, aes(x = Player.Rank, y = Score)) +
+  geom_point()
+
+diff_miss
+rank_score
+
+
+acc_to_float <- mrc %>% mutate(acc = parse_number(mrc$Accuracy))
+acc_to_float %>% summarize_all(mean)
+
+
+                
+accuracy_scores <- mrc %>% arrange(desc(Accuracy), desc(Score)) %>% mutate(n= n())
+accuracy_scores
+```
+
+
+
+
+```{r}
+
+#
+by_user <- mrc %>% group_by(Player.Username)
+
+
+yo <- by_user %>% summarize(matches_played = n(), 
+                            avg_acc = sum(parse_number(Accuracy))/matches_played,
+                            avg_score = sum(Score)/matches_played,
+                            pp = mean(Player.PP),
+                            rank = mean(Player.Rank)
+                            )
+
+# highest avg score
+avg_score <- yo %>% arrange(desc(yo$avg_score))
+avg_acc <- yo %>% arrange(desc(yo$avg_acc))
+match_played <- yo %>% arrange(desc(matches_played), desc(yo$avg_score))
+
+
+avg_score
+avg_acc
+match_played
+```
+
+
+
+```{r}
+
+
+by_team <- mrc %>% group_by(Team.Name)
+
+hey <- by_team %>% summarize(matches_played = n(), 
+                            avg_acc = sum(parse_number(Accuracy)) / matches_played,
+                            avg_score = sum(Score) / matches_played)
+
+
+avg_score <- hey %>% arrange(desc(hey$avg_score))
+avg_acc <- hey %>% arrange(desc(hey$avg_acc))
+
+
+avg_score
+avg_acc
+
+```
+
+---------------------
+```{r}
+
+# GROUP BY MAPS
+by_map <- mrc %>% group_by(Map.Name)
+
+hey <- by_map %>% summarize(matches_played = n(), 
+                            avg_acc = sum(parse_number(Accuracy)) / matches_played,
+                            avg_score = sum(Score) / matches_played,
+                            map_id = mean(beatmap.ID))
+
+
+avg_score <- hey %>% arrange(desc(hey$avg_score))
+avg_acc <- hey %>% arrange(desc(hey$avg_acc))
+
+
+avg_score
+avg_acc
+
+```
+```{r}
+
+# find best score of a map type
+best_scores <- mrc %>% filter(mrc$beatmap.ID == 2643263)
+
+best_scores %>% arrange(desc(Score), desc(Accuracy)) %>% select(Player.Username, Score, Accuracy, Map.Name, Team.Name)
+
+
+
+```
